@@ -3,11 +3,22 @@
   "displayName": "Smart Commit",
   "description": "Generate commit messages from staged changes using your existing opencode or Claude Code CLI. No API keys, no extra setup.",
   "version": "0.1.1",
-  "publisher": "placeholder-publisher",
+  "publisher": "afrinuad",
+  "author": {
+    "name": "AfriNuad"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/placeholder/smart-commit-ai"
+    "url": "https://github.com/fhrabbi555/smart_commit_tool"
+  },
+  "bugs": {
+    "url": "https://github.com/fhrabbi555/smart_commit_tool/issues"
+  },
+  "homepage": "https://github.com/fhrabbi555/smart_commit_tool#readme",
+  "galleryBanner": {
+    "color": "#7C3AED",
+    "theme": "dark"
   },
   "icon": "media/icon.png",
   "engines": {
