@@ -2,7 +2,7 @@
   "name": "smart-commit-ai",
   "displayName": "Smart Commit",
   "description": "Generate commit messages from staged changes using your existing opencode or Claude Code CLI. No API keys, no extra setup.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "placeholder-publisher",
   "license": "MIT",
   "repository": {

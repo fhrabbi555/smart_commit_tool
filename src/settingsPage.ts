@@ -235,6 +235,17 @@ export class SettingsPage {
   <div class="result" id="testClaude"></div>
 </div>
 
+<h2>Generate button (✨)</h2>
+<div class="card">
+  <label>When nothing is staged yet…</label>
+  <select id="stagingMode">
+    <option value="auto">⚡ Direct action — stage everything automatically, no popup</option>
+    <option value="prompt">💬 Ask me each time — popup: stage all / unstaged / cancel</option>
+  </select>
+  <label class="chk"><input type="checkbox" id="autoCommit"> Auto-commit without review (off by default)</label>
+  <div class="hint">Direct + auto-commit = fully one-click commit. Ask + review = fully manual.</div>
+</div>
+
 <h2>Generation</h2>
 <div class="card">
   <div class="grid">
@@ -256,13 +267,7 @@ export class SettingsPage {
     </div>
   </div>
   <label class="chk"><input type="checkbox" id="includeBody"> Include body paragraph</label>
-      <label>When nothing is staged yet…</label>
-      <select id="stagingMode">
-        <option value="auto">Direct action — stage everything automatically, no popup</option>
-        <option value="prompt">Ask me each time — show popup (stage all / unstaged / cancel)</option>
-      </select>
-      <label class="chk"><input type="checkbox" id="mimicRepoStyle"> Mimic this repo's recent commit style</label>
-      <label class="chk"><input type="checkbox" id="autoCommit"> Auto-commit without review (off by default)</label>
+  <label class="chk"><input type="checkbox" id="mimicRepoStyle"> Mimic this repo's recent commit style</label>
 </div>
 
 <div class="hint" style="margin-top:24px">Usage: stage files in Source Control → click the ✦ button → message appears in the input box. Status-bar ✦ opens this page.</div>
