@@ -1,0 +1,175 @@
+{
+  "name": "smart-commit-ai",
+  "displayName": "Smart Commit",
+  "description": "Generate commit messages from staged changes using your existing opencode or Claude Code CLI. No API keys, no extra setup.",
+  "version": "0.1.0",
+  "publisher": "placeholder-publisher",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/placeholder/smart-commit-ai"
+  },
+  "icon": "media/icon.png",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other",
+    "SCM Providers"
+  ],
+  "keywords": [
+    "git",
+    "commit",
+    "ai",
+    "opencode",
+    "claude code",
+    "conventional commits"
+  ],
+  "extensionKind": [
+    "ui"
+  ],
+  "extensionDependencies": [
+    "vscode.git"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "smartCommit.generate",
+        "title": "Smart Commit: Generate Message",
+        "icon": "$(sparkle)",
+        "category": "Smart Commit"
+      },
+      {
+        "command": "smartCommit.settings",
+        "title": "Open Settings",
+        "icon": "$(gear)",
+        "category": "Smart Commit"
+      },
+      {
+        "command": "smartCommit.selectModel",
+        "title": "Select Model",
+        "category": "Smart Commit"
+      },
+      {
+        "command": "smartCommit.selectProvider",
+        "title": "Select Provider (opencode / Claude Code)",
+        "category": "Smart Commit"
+      },
+      {
+        "command": "smartCommit.redetect",
+        "title": "Re-detect Providers",
+        "category": "Smart Commit"
+      }
+    ],
+    "menus": {
+      "scm/title": [
+        {
+          "command": "smartCommit.generate",
+          "group": "navigation",
+          "when": "scmProvider == git"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "smartCommit.generate",
+        "key": "ctrl+alt+c",
+        "mac": "cmd+alt+c",
+        "when": "workbenchState != empty"
+      }
+    ],
+    "configuration": {
+      "title": "Smart Commit",
+      "properties": {
+        "smartCommit.provider": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "opencode",
+            "claude"
+          ],
+          "default": "auto",
+          "description": "Which CLI to use. auto = first detected (opencode first)."
+        },
+        "smartCommit.model": {
+          "type": "string",
+          "default": "",
+          "description": "Model for the primary provider. Empty = CLI default. opencode format: provider/model (e.g. anthropic/claude-haiku-4-5). Claude: alias (sonnet/opus/haiku) or full id."
+        },
+        "smartCommit.fallbackModel": {
+          "type": "string",
+          "default": "",
+          "description": "Retry model for the same provider if the primary model fails. Empty = skip."
+        },
+        "smartCommit.fallbackProvider": {
+          "type": "boolean",
+          "default": true,
+          "description": "If the primary CLI fails entirely, try the other detected CLI with its default model."
+        },
+        "smartCommit.style": {
+          "type": "string",
+          "enum": [
+            "conventional",
+            "plain",
+            "custom"
+          ],
+          "default": "conventional",
+          "description": "Commit message style."
+        },
+        "smartCommit.customTemplate": {
+          "type": "string",
+          "default": "",
+          "description": "Custom prompt template used when style = custom. Placeholders: {{diff}}, {{files}}, {{subjects}}."
+        },
+        "smartCommit.language": {
+          "type": "string",
+          "default": "en",
+          "description": "Language for the commit message (ISO code, e.g. en, id, de)."
+        },
+        "smartCommit.includeBody": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include a commit body paragraph after the subject."
+        },
+        "smartCommit.autoCommit": {
+          "type": "boolean",
+          "default": false,
+          "description": "Commit immediately with the generated message instead of filling the SCM input box for review."
+        },
+        "smartCommit.maxDiffChars": {
+          "type": "number",
+          "default": 8000,
+          "description": "Maximum characters of staged diff sent to the model."
+        },
+        "smartCommit.timeoutMs": {
+          "type": "number",
+          "default": 60000,
+          "description": "Timeout per CLI attempt in milliseconds."
+        },
+        "smartCommit.mimicRepoStyle": {
+          "type": "boolean",
+          "default": true,
+          "description": "Feed recent commit subjects to the model so it mimics this repo's style."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "vsce:package": "npm run compile && vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.80.0",
+    "esbuild": "^0.24.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

@@ -1,7 +1,38 @@
 # AI Commit Tool — VS Code Extension Plan
 
 > Working name: **Smart Commit** (marketplace ID suggestion: `smart-commit-ai`)
-> Status: planning · Date: 2026-10-30
+> Status: M0–M3 complete, code working end-to-end · Date: 2026-10-30
+
+## 0. Status update (2026-10-30, after implementation session)
+
+Milestones **M0–M3 done** (scaffold, opencode runner, claude runner + fallback
+chain, settings + model picker + status bar). Verified with real CLIs:
+
+- `npm run typecheck` clean, `npm run compile` clean, unit tests 27/27.
+- End-to-end smoke (`npx tsx test/e2e-smoke.ts`, real CLI calls):
+  - opencode 5.5s → `fix: validate token before return`
+  - claude 16.3s → `fix: throw error on missing token`
+- `opencode models` fetch live: 200 models listed.
+
+Key implementation findings (not in original plan):
+
+1. **Pipe-inheritance hang**: `opencode` hands its stdout fd to a background
+   daemon. With Node `execFile` pipes, the fd never EOFs and the callback
+   never fires even though the process exited in ~1s. Fix: spawn with
+   stdout/stderr redirected to temp files and resolve on the `exit` event
+   (`src/runner.ts`).
+2. **Reply pollution**: Claude Code plugin hooks (claude-mem) inject banner
+   text into `.result`. All prompts demand `<commit></commit>`-tagged output;
+   `extractCommitMessage()` pulls tagged content and strips fences/quotes.
+3. **opencode stuck background service**: retry once with `--standalone`
+   (private server) when an opencode attempt times out.
+4. **opencode default model may hit provider quota** (openrouter 402) —
+   classified as `kind: "quota"` and surfaced with a human-readable message;
+   fallback chain then tries the next attempt.
+
+Remaining for M4/M5: marketplace publisher ID + `vsce package` dry run,
+integration tests with fake CLI fixtures, optional per-repo settings.
+
 
 ## 1. One-liner
 
