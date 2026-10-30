@@ -5,6 +5,12 @@ All notable changes to Smart Commit are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning
 follows [SemVer](https://semver.org/).
 
+## [0.2.1] — 2026-10-30
+
+### Changed
+
+- Display name: `Smart Commit Afri` → `Smart Commit by AfriNuad`.
+
 ## [0.2.0] — 2026-10-30
 
 ### Changed

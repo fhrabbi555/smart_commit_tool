@@ -1,8 +1,8 @@
 {
   "name": "smart-commit-afri",
-  "displayName": "Smart Commit Afri",
+  "displayName": "Smart Commit by AfriNuad",
   "description": "Generate commit messages from staged changes using your existing opencode or Claude Code CLI. No API keys, no extra setup.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "afrinuad",
   "author": {
     "name": "AfriNuad"
