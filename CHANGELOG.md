@@ -5,6 +5,14 @@ All notable changes to Smart Commit are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); versioning
 follows [SemVer](https://semver.org/).
 
+## [0.2.0] — 2026-10-30
+
+### Changed
+
+- Marketplace ID renamed `smart-commit-ai` → `smart-commit-afri`
+  (`smart-commit-ai` was already taken on the Marketplace).
+- Publisher: `afrinuad` (AfriNuad).
+
 ## [0.1.1] — 2026-10-30
 
 ### Added

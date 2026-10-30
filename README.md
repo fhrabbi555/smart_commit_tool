@@ -60,10 +60,10 @@ Detection covers PATH and the common install locations
 **From the Marketplace:** open the Extensions view (`⌘⇧X` / `Ctrl+Shift+X`),
 search **Smart Commit**, click Install.
 
-**From a .vsix file:**
+**From a Marketplace-safe .vsix file:**
 
 ```sh
-code --install-extension smart-commit-ai-<version>.vsix
+code --install-extension smart-commit-afri-<version>.vsix
 ```
 
 or Extensions view → `···` menu → **Install from VSIX…** → pick the file.
