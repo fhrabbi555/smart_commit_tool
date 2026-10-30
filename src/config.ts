@@ -11,6 +11,7 @@ export interface SmartCommitConfig {
   language: string;
   includeBody: boolean;
   autoCommit: boolean;
+  stagingMode: "auto" | "prompt";
   maxDiffChars: number;
   timeoutMs: number;
   mimicRepoStyle: boolean;
@@ -28,6 +29,7 @@ export function getConfig(): SmartCommitConfig {
     language: cfg.get<string>("language", "en"),
     includeBody: cfg.get<boolean>("includeBody", false),
     autoCommit: cfg.get<boolean>("autoCommit", false),
+    stagingMode: cfg.get<"auto" | "prompt">("stagingMode", "auto"),
     maxDiffChars: cfg.get<number>("maxDiffChars", 8000),
     timeoutMs: cfg.get<number>("timeoutMs", 60000),
     mimicRepoStyle: cfg.get<boolean>("mimicRepoStyle", true),

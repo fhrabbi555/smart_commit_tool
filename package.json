@@ -140,6 +140,19 @@
           "default": false,
           "description": "Commit immediately with the generated message instead of filling the SCM input box for review."
         },
+        "smartCommit.stagingMode": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "prompt"
+          ],
+          "enumDescriptions": [
+            "Direct action: automatically stage all changes (git add -A) and generate — no popup.",
+            "Ask each time with a popup: stage all, use unstaged, or cancel."
+          ],
+          "default": "auto",
+          "description": "What the ✨ generate button does when nothing is staged yet."
+        },
         "smartCommit.maxDiffChars": {
           "type": "number",
           "default": 8000,

@@ -256,8 +256,13 @@ export class SettingsPage {
     </div>
   </div>
   <label class="chk"><input type="checkbox" id="includeBody"> Include body paragraph</label>
-  <label class="chk"><input type="checkbox" id="mimicRepoStyle"> Mimic this repo's recent commit style</label>
-  <label class="chk"><input type="checkbox" id="autoCommit"> Auto-commit without review (off by default)</label>
+      <label>When nothing is staged yet…</label>
+      <select id="stagingMode">
+        <option value="auto">Direct action — stage everything automatically, no popup</option>
+        <option value="prompt">Ask me each time — show popup (stage all / unstaged / cancel)</option>
+      </select>
+      <label class="chk"><input type="checkbox" id="mimicRepoStyle"> Mimic this repo's recent commit style</label>
+      <label class="chk"><input type="checkbox" id="autoCommit"> Auto-commit without review (off by default)</label>
 </div>
 
 <div class="hint" style="margin-top:24px">Usage: stage files in Source Control → click the ✦ button → message appears in the input box. Status-bar ✦ opens this page.</div>
@@ -288,11 +293,13 @@ export class SettingsPage {
   $('fallbackModel').addEventListener('input', (e) => debounceSetting('fallbackModel', e.target.value.trim()));
   $('fallbackProvider').addEventListener('change', (e) => vscode.postMessage({ type: 'setSetting', key: 'fallbackProvider', value: e.target.checked }));
   $('style').addEventListener('change', (e) => vscode.postMessage({ type: 'setSetting', key: 'style', value: e.target.value }));
+  $('stagingMode').addEventListener('change', (e) => vscode.postMessage({ type: 'setSetting', key: 'stagingMode', value: e.target.value }));
   $('language').addEventListener('input', (e) => debounceSetting('language', e.target.value.trim() || 'en'));
   $('maxDiffChars').addEventListener('input', (e) => debounceSetting('maxDiffChars', Number(e.target.value) || 8000));
   $('timeoutMs').addEventListener('input', (e) => debounceSetting('timeoutMs', Number(e.target.value) || 60000));
   $('includeBody').addEventListener('change', (e) => vscode.postMessage({ type: 'setSetting', key: 'includeBody', value: e.target.checked }));
   $('mimicRepoStyle').addEventListener('change', (e) => vscode.postMessage({ type: 'setSetting', key: 'mimicRepoStyle', value: e.target.checked }));
+  $('autoStage').addEventListener('change', (e) => vscode.postMessage({ type: 'setSetting', key: 'autoStage', value: e.target.checked }));
   $('autoCommit').addEventListener('change', (e) => vscode.postMessage({ type: 'setSetting', key: 'autoCommit', value: e.target.checked }));
   $('modelFilter').addEventListener('input', () => renderChips());
 
@@ -381,11 +388,13 @@ export class SettingsPage {
     $('fallbackModel').value = set.fallbackModel || '';
     $('fallbackProvider').checked = !!set.fallbackProvider;
     $('style').value = set.style;
+    $('stagingMode').value = set.stagingMode || 'auto';
     $('language').value = set.language || 'en';
     $('maxDiffChars').value = set.maxDiffChars;
     $('timeoutMs').value = set.timeoutMs;
     $('includeBody').checked = !!set.includeBody;
     $('mimicRepoStyle').checked = !!set.mimicRepoStyle;
+    $('autoStage').checked = !!set.autoStage;
     $('autoCommit').checked = !!set.autoCommit;
     renderChips();
   }

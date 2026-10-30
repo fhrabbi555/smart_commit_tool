@@ -81,51 +81,68 @@ async function generate(): Promise<void> {
   const repo = await pickRepository(git.repositories);
   if (!repo) return;
 
-  // Source diff: staged first; offer stage-all / unstaged when nothing staged.
+  // Source diff: staged if present. Otherwise follow stagingMode:
+  // "auto" = direct action (stage all, no popup), "prompt" = ask each time.
   let diff: string;
   let files: string[];
+  const stageAll = async (): Promise<void> => {
+    await exec({
+      bin: "git",
+      args: ["add", "-A"],
+      cwd: repoRoot(repo),
+      timeoutMs: 15000,
+      signal: new AbortController().signal,
+    });
+  };
+
   if (hasStagedChanges(repo)) {
     diff = await getStagedDiff(repo);
     files = changedFiles(repo, true);
   } else if (repo.state.workingTreeChanges.length > 0) {
-    const pick = await vscode.window.showQuickPick(
-      [
+    if (cfg.stagingMode === "prompt") {
+      const pick = await vscode.window.showQuickPick(
+        [
+          {
+            label: "$(plus) Stage all changes and generate",
+            description: "git add -A, then generate from the staged diff",
+            action: "stage",
+          },
+          {
+            label: "$(diff) Generate from unstaged changes",
+            description: "keep files unstaged, describe working-tree changes",
+            action: "unstaged",
+          },
+          { label: "$(close) Cancel", action: "cancel" },
+        ],
         {
-          label: "$(plus) Stage all changes and generate",
-          description: "git add -A, then generate from the staged diff",
-          action: "stage",
-        },
-        {
-          label: "$(diff) Generate from unstaged changes",
-          description: "keep files unstaged, describe working-tree changes",
-          action: "unstaged",
-        },
-        { label: "$(close) Cancel", action: "cancel" },
-      ],
-      {
-        title: "Smart Commit: nothing is staged yet",
-        placeHolder: "You have modified files — pick how to continue",
+          title: "Smart Commit: nothing is staged yet",
+          placeHolder: "You have modified files — pick how to continue",
+        }
+      );
+      if (!pick || pick.action === "cancel") return;
+      if (pick.action === "stage") {
+        try {
+          await stageAll();
+        } catch (e) {
+          vscode.window.showErrorMessage(`Smart Commit: git add failed: ${String(e)}`);
+          return;
+        }
+        diff = await getStagedDiff(repo);
+        files = changedFiles(repo, true);
+      } else {
+        diff = await getAllDiff(repo);
+        files = changedFiles(repo, false);
       }
-    );
-    if (!pick || pick.action === "cancel") return;
-    if (pick.action === "stage") {
+    } else {
+      // Direct action: auto-stage all, no popup.
       try {
-        await exec({
-          bin: "git",
-          args: ["add", "-A"],
-          cwd: repoRoot(repo),
-          timeoutMs: 15000,
-          signal: new AbortController().signal,
-        });
+        await stageAll();
       } catch (e) {
         vscode.window.showErrorMessage(`Smart Commit: git add failed: ${String(e)}`);
         return;
       }
       diff = await getStagedDiff(repo);
       files = changedFiles(repo, true);
-    } else {
-      diff = await getAllDiff(repo);
-      files = changedFiles(repo, false);
     }
   } else {
     vscode.window.showInformationMessage(
