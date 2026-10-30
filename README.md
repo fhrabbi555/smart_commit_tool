@@ -1,4 +1,4 @@
-# Smart Commit ✦
+# Smart Commit Afri ✦
 
 **Generate commit messages from your staged changes using your existing
 [opencode](https://opencode.ai) or [Claude Code](https://claude.com/claude-code)

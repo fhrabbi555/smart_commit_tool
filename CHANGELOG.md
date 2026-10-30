@@ -11,6 +11,8 @@ follows [SemVer](https://semver.org/).
 
 - Marketplace ID renamed `smart-commit-ai` → `smart-commit-afri`
   (`smart-commit-ai` was already taken on the Marketplace).
+- Display name renamed `Smart Commit` → `Smart Commit Afri`
+  (display name is enforced unique Marketplace-wide on upload).
 - Publisher: `afrinuad` (AfriNuad).
 
 ## [0.1.1] — 2026-10-30
