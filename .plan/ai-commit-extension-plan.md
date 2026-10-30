@@ -1,7 +1,8 @@
 # AI Commit Tool — VS Code Extension Plan
 
-> Working name: **Smart Commit** (marketplace ID suggestion: `smart-commit-ai`)
-> Status: M0–M3 complete, code working end-to-end · Date: 2026-10-30
+> Working name: **Smart Commit** (marketplace: `smart-commit-ai`, publisher `afrinuad` / AfriNuad)
+> Status: M0–M4 complete, marketplace-ready, docs done · Date: 2026-10-30
+> Repo: https://github.com/fhrabbi555/smart_commit_tool
 
 ## 0. Status update (2026-10-30, after implementation session)
 
@@ -32,6 +33,24 @@ Key implementation findings (not in original plan):
 
 Remaining for M4/M5: marketplace publisher ID + `vsce package` dry run,
 integration tests with fake CLI fixtures, optional per-repo settings.
+
+## 16. Final status (2026-10-30, second session)
+
+All M0–M4 complete, shipped as v0.1.1:
+
+- Sticky fast path: last successful provider+model runs first (globalState),
+  survives restarts, shown in status bar ⚡ + settings page.
+- Settings page fully interactive (CSP-safe event wiring), staging modes
+  (`auto` direct action / `prompt` popup) via `smartCommit.stagingMode`.
+- Docs: README tutorial with every setting explained, CHANGELOG, LICENSE
+  (AfriNuad), publisher `afrinuad`, repo URLs → github.com/fhrabbi555/smart_commit_tool.
+- `vsce package` clean, 31/31 unit tests, typecheck + build green.
+
+M5 (publish) steps for the publisher:
+1. Create publisher ID `afrinuad` at marketplace.visualstudio.com/manage.
+2. Create Azure DevOps PAT with Marketplace → Manage scope.
+3. `npx @vscode/vsce login afrinuad` → paste PAT.
+4. `npx @vscode/vsce publish` from the repo root.
 
 
 ## 1. One-liner
