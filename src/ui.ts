@@ -21,12 +21,18 @@ export class StatusBar {
     this.item.tooltip = tooltip ?? `Smart Commit — click to change model. ${text}`;
   }
 
-  update(provider: Provider | undefined, model: string | undefined, available: number): void {
+  update(provider: Provider | undefined, model: string | undefined, available: number, fastPath = false): void {
     if (!provider || available === 0) {
       this.set("no CLI found", "Smart Commit: no opencode/Claude Code CLI detected. Click for options.");
       return;
     }
-    this.set(`${provider} · ${model?.trim() || "default"}`);
+    const label = `${provider} · ${model?.trim() || "default"}`;
+    this.set(
+      fastPath ? `${label} ⚡` : label,
+      fastPath
+        ? `Smart Commit — fast path: this worked last time and runs first. Click to open settings. ${label}`
+        : `Smart Commit — click to change model. ${label}`
+    );
   }
 
   dispose(): void {

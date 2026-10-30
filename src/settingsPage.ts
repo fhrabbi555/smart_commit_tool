@@ -18,6 +18,7 @@ interface PanelState {
   providers: ProviderInfo[];
   settings: SmartCommitConfig;
   primary: Provider | undefined;
+  lastSuccess?: { provider: string; model?: string } | null;
 }
 
 export class SettingsPage {
@@ -62,7 +63,10 @@ export class SettingsPage {
       settings.provider === "auto"
         ? providers[0]?.provider
         : providers.find((p) => p.provider === settings.provider)?.provider;
-    return { providers, settings, primary };
+    const lastSuccess = this.context.globalState.get<{ provider: string; model?: string }>(
+      "smartCommit.lastSuccess"
+    );
+    return { providers, settings, primary, lastSuccess };
   }
 
   private async pushState(): Promise<void> {
@@ -215,6 +219,7 @@ export class SettingsPage {
       <label class="chk"><input type="checkbox" id="fallbackProvider"> Fall back to the other CLI if this one fails</label>
     </div>
   </div>
+  <div class="hint" id="fastPath" style="margin-top:8px"></div>
   <label>Model list <span class="hint">(click one to apply)</span></label>
   <div class="row">
     <input type="text" id="modelFilter" placeholder="filter models… e.g. haiku" style="max-width:220px">
@@ -402,6 +407,13 @@ export class SettingsPage {
     $('autoStage').checked = !!set.autoStage;
     $('autoCommit').checked = !!set.autoCommit;
     renderChips();
+    const fp = $('fastPath');
+    if (s.lastSuccess && s.providers.some((p) => p.provider === s.lastSuccess.provider)) {
+      fp.textContent = '⚡ Fast path active: ' + s.lastSuccess.provider + ' · ' + (s.lastSuccess.model || 'default') +
+        ' — worked last time, runs first on the next generate.';
+    } else {
+      fp.textContent = 'Fast path: not active yet — generate once and the winning model is remembered.';
+    }
   }
 
   vscode.postMessage({ type: 'refreshProviders' });

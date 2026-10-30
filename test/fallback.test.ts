@@ -69,3 +69,60 @@ test("duplicate attempt (same model as fallback) deduped", () => {
   });
   assert.equal(attempts.length, 1);
 });
+
+// Sticky fast path (last successful provider+model runs first under auto).
+
+test("auto: sticky winner runs first", () => {
+  const attempts = buildAttempts({
+    providerSetting: "auto",
+    model: "",
+    fallbackModel: "",
+    fallbackProvider: true,
+    available: [opencode, claude],
+    lastSuccess: { provider: "claude", model: "sonnet" },
+  });
+  assert.deepEqual(
+    attempts.map((a) => `${a.provider}:${a.model ?? "default"}`),
+    ["claude:sonnet", "opencode:default", "claude:default"]
+  );
+  assert.match(attempts[0].label, /last used/);
+});
+
+test("explicit provider: user choice first, sticky second", () => {
+  const attempts = buildAttempts({
+    providerSetting: "opencode",
+    model: "m-x",
+    fallbackModel: "",
+    fallbackProvider: true,
+    available: [opencode, claude],
+    lastSuccess: { provider: "claude", model: "sonnet" },
+  });
+  assert.deepEqual(
+    attempts.map((a) => `${a.provider}:${a.model ?? "default"}`),
+    ["opencode:m-x", "claude:sonnet", "claude:default"]
+  );
+});
+
+test("sticky for undetected provider is ignored", () => {
+  const attempts = buildAttempts({
+    providerSetting: "auto",
+    model: "",
+    fallbackModel: "",
+    fallbackProvider: false,
+    available: [opencode],
+    lastSuccess: { provider: "claude", model: "sonnet" },
+  });
+  assert.deepEqual(attempts.map((a) => a.provider), ["opencode"]);
+});
+
+test("sticky same as configured dedupes to one attempt", () => {
+  const attempts = buildAttempts({
+    providerSetting: "auto",
+    model: "sonnet",
+    fallbackModel: "",
+    fallbackProvider: true,
+    available: [claude],
+    lastSuccess: { provider: "claude", model: "sonnet" },
+  });
+  assert.equal(attempts.length, 1);
+});

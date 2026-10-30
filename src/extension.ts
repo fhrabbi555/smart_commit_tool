@@ -12,7 +12,7 @@ import {
   truncateDiff,
   type GitRepository,
 } from "./diff";
-import { buildAttempts, type ProviderInfo } from "./fallback";
+import { buildAttempts, type Attempt, type ProviderInfo } from "./fallback";
 import { buildPrompt, extractCommitMessage } from "./prompt";
 import { CliError, exec, type Provider } from "./runner";
 import { invokePrompt, OUTPUT } from "./invoke";
@@ -20,10 +20,14 @@ import { pickModel } from "./models";
 import { SettingsPage } from "./settingsPage";
 import { humanError, StatusBar } from "./ui";
 
+const LAST_SUCCESS_KEY = "smartCommit.lastSuccess";
+
 let available: ProviderInfo[] = [];
 let statusBar: StatusBar;
+let ctx: vscode.ExtensionContext;
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
+  ctx = context;
   statusBar = new StatusBar("smartCommit.settings");
 
   void refreshDetection(false);
@@ -42,14 +46,23 @@ export function deactivate(): void {
   // handled via subscriptions
 }
 
+/** Status bar shows what will actually run first: sticky fast path (auto) or configured provider/model. */
+function updateStatusDisplay(): void {
+  const cfg = getConfig();
+  const sticky = ctx.globalState.get<{ provider: Provider; model?: string }>(LAST_SUCCESS_KEY);
+  const stickyInfo = sticky ? available.find((p) => p.provider === sticky.provider) : undefined;
+  const useSticky = cfg.provider === "auto" && stickyInfo;
+  statusBar.update(
+    useSticky ? sticky!.provider : (cfg.provider === "auto" ? available[0]?.provider : (available.find((p) => p.provider === cfg.provider)?.provider)),
+    useSticky ? sticky!.model : cfg.model,
+    available.length,
+    !!useSticky
+  );
+}
+
 async function refreshDetection(userInitiated: boolean): Promise<void> {
   available = await detectProviders();
-  const cfg = getConfig();
-  const primary =
-    cfg.provider === "auto"
-      ? available[0]?.provider
-      : available.find((p) => p.provider === cfg.provider)?.provider;
-  statusBar.update(primary, cfg.model, available.length);
+  updateStatusDisplay();
 
   if (userInitiated) {
     const names = available.map((p) => `${p.provider} (${p.version ?? "?"}) → ${p.bin}`).join("\n") || "none found";
@@ -181,6 +194,7 @@ async function generate(): Promise<void> {
       fallbackModel: cfg.fallbackModel,
       fallbackProvider: cfg.fallbackProvider,
       available,
+      lastSuccess: ctx.globalState.get<{ provider: Provider; model?: string }>(LAST_SUCCESS_KEY),
     });
   } catch {
     if (cfg.provider !== "auto" && available.length > 0) {
@@ -211,6 +225,7 @@ async function generate(): Promise<void> {
 
   const controller = new AbortController();
   const failures: string[] = [];
+  let winner: Attempt | undefined;
 
   const reply = await vscode.window.withProgress(
     {
@@ -224,7 +239,7 @@ async function generate(): Promise<void> {
         const attempt = attempts[i];
         progress.report({ message: `${attempt.label} (${i + 1}/${attempts.length})` });
         try {
-          return await invokePrompt({
+          const result = await invokePrompt({
             provider: attempt.provider,
             bin: attempt.bin,
             prompt,
@@ -233,6 +248,8 @@ async function generate(): Promise<void> {
             timeoutMs: cfg.timeoutMs,
             signal: controller.signal,
           });
+          winner = attempt;
+          return result;
         } catch (e) {
           if (controller.signal.aborted) return undefined;
           if (e instanceof CliError) {
@@ -263,6 +280,15 @@ async function generate(): Promise<void> {
   if (!message) {
     vscode.window.showErrorMessage("Smart Commit: model returned an empty message.");
     return;
+  }
+
+  // Sticky fast path: remember what worked so the next generate starts here.
+  if (winner) {
+    await ctx.globalState.update(LAST_SUCCESS_KEY, {
+      provider: winner.provider,
+      model: winner.model ?? "",
+    });
+    updateStatusDisplay();
   }
 
   if (cfg.autoCommit) {
